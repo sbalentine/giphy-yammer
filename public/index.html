@@ -2,9 +2,23 @@
 <html>
   <style>
     #giphy-results{
-      height:300px;
+      height:500px;
+      border: 2px black solid;
       background-color:lightgray;
       overflow:scroll;
+      margin-bottom:20px;
+      padding-left:50px;
+      padding-right:50px;
+      text-align:center;
+    }
+    .oauth{
+      margin-bottom:20px;
+    }
+    .search{
+      margin-bottom:20px;
+    }
+    .image{
+      margin: 3px;
     }
   </style>
   <head>
@@ -12,10 +26,11 @@
     <title>Giphy Hack</title>
   </head>
   <body>
-    <div>
+    <div class="oauth">
       Yammer OAuth Token:
       <input type="text" id="yammer-token">
-    <div>
+    </div>
+    <div class="search">
       Search Giphy:
       <input type="text" id="search-query">
       <button id="search-button">Search</button>
@@ -30,9 +45,14 @@
       $.ajax({
         url:"http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=dc6zaTOxFJmzC&limit=10",
         type:"GET",
+        beforeSend: function(){
+          $('#giphy-results').children().each(function(){
+            $(this).remove();
+          });
+        },
         success: function(data, textStatus, request){
           $(data['data']).each(function(){
-            image_url = $(this)[0]['images']['fixed_height']['url'];
+            image_url = $(this)[0]['images']['fixed_width']['url'];
             $('#giphy-results').append('<img class="image" src="' + image_url + '">')
           });
         }
@@ -42,8 +62,6 @@
       image = $(this);
       $('.image').css('border', '');
       image.css('border', '3px red solid');
-      console.log(image.attr('src'));
-      console.log($('#post-button').data('gif'));
       $('#post-button').data('gif', image.attr('src'))
     })
     $('#post-button').click(function(){
@@ -54,6 +72,12 @@
         type:"POST",
         data:"token=" + token + "&gif_url=" + encodeURIComponent(gif_url)
       });
+    });
+
+    $('#search-query').keypress(function(event) {
+      if (event.which == '13' && !event.shiftKey) {
+        $('#search-button').trigger('click');
+      }
     });
   </script>
 </html>
