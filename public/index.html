@@ -20,6 +20,9 @@
     .image{
       margin: 3px;
     }
+    .more{
+      text-align:center;
+    }
   </style>
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
@@ -36,6 +39,9 @@
       <button id="search-button">Search</button>
     </div>
     <div id="giphy-results">
+    </div>
+    <div class="more">
+      <button id="more-button" data-offset='0' hidden>More</button>
     </div>
     <button id="post-button">Post to Yammer</button>
   </body>
@@ -55,6 +61,27 @@
             image_url = $(this)[0]['images']['fixed_width']['url'];
             $('#giphy-results').append('<img class="image" src="' + image_url + '">')
           });
+          $('#more-button').attr('hidden', false)
+        }
+      });
+    });
+    $('#more-button').click(function(){
+      var query = $('#search-query').val();
+      var offset = parseInt($('#more-button').data('offset'));
+      $.ajax({
+        url:"http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=dc6zaTOxFJmzC&limit=10&offset=" + offset,
+        type:"GET",
+        beforeSend: function(){
+          $('#giphy-results').children().each(function(){
+            $(this).remove();
+          });
+        },
+        success: function(data, textStatus, request){
+          $(data['data']).each(function(){
+            image_url = $(this)[0]['images']['fixed_width']['url'];
+            $('#giphy-results').append('<img class="image" src="' + image_url + '">')
+          });
+          $('#more-button').data('offset', offset + 10);
         }
       });
     });
